@@ -1,10 +1,13 @@
 import { FC } from 'react'
-import { View, Text } from 'react-native'
+
+import Layout from '@/components/ui/layout/Layout'
+
+import Timer from './timer/Timer'
 
 export const Home: FC = () => {
 	return (
-		<View>
-			<Text>Home</Text>
-		</View>
+		<Layout title='Главная'>
+			<Timer />
+		</Layout>
 	)
 }
