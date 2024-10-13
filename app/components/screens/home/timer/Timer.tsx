@@ -1,9 +1,10 @@
 import { FC, useEffect, useState } from 'react'
 import { View } from 'react-native'
-import { PlayButton } from './Actions/PlayButton'
 import { CountdownCircleTimer } from 'react-native-countdown-circle-timer'
 import { Text } from 'react-native'
 import cn from 'clsx'
+import { AntDesign } from '@expo/vector-icons'
+import Actions from './Actions/Actions'
 
 export enum EnumStatus {
 	REST = 'Отдых',
@@ -16,20 +17,19 @@ const Timer: FC = () => {
 	const [currentSession, setCurrentSession] = useState<number>(5)
 	const [key, setKey] = useState<number>(0)
 	const flowDuration = 1 * 10
-	const sessionsCount = 7
-	const brakeDuration = 1 * 60
-	const isCompleted = currentSession === sessionsCount;
+	const sessionsCount = 10
+	const breakDuration = 1 * 10
+	const isCompleted = currentSession === sessionsCount
+	const isSmallIndicator = sessionsCount > 7
 
-	useEffect(()=> {
-		if(isPlaying) {
-			setKey(prev => prev +1),
-			setStatus(EnumStatus.WORK)
-		}
-		else {
+	useEffect(() => {
+		if (isPlaying) {
+			setKey(prev => prev + 1), setStatus(EnumStatus.WORK)
+		} else {
 			setStatus(EnumStatus.REST)
 		}
 
-		if(isCompleted) {
+		if (isCompleted) {
 			setStatus(EnumStatus.Complete)
 		}
 	}, [isPlaying])
@@ -41,13 +41,15 @@ const Timer: FC = () => {
 				<CountdownCircleTimer
 					key={key}
 					isPlaying={isPlaying}
-					duration={flowDuration}
+					duration={status === EnumStatus.REST ? breakDuration : flowDuration}
 					colors={['#3A3570', '#664FF3']}
-					colorsTime={[flowDuration, 5]}
+					colorsTime={[
+						status === EnumStatus.REST ? breakDuration : flowDuration,
+						0
+					]}
 					trailColor='#2F2F4C'
 					onComplete={() => {
-						setIsPlaying(false),
-						setCurrentSession(prev => prev + 1)
+						setIsPlaying(false), setCurrentSession(prev => prev + 1)
 
 						return {
 							shouldRepeat: true
@@ -73,25 +75,46 @@ const Timer: FC = () => {
 				</CountdownCircleTimer>
 
 				<View className='mt-14 flex-row items-center'>
-					{[1, 2, 3, 4, 5, 6, 7].map((_, i) => {
+					{[1, 2, 3, 4, 5, 6, 7,8,9,10].map((_, i) => {
 						return (
 							<View className='flex-row items-center' key={i}>
 								<View
 									className={cn(
-										'w-5 h-5 border-4 rounded-full',
+										'border-4 rounded-full',
 										i === currentSession
 											? 'border-primary bg-transparent'
 											: 'border-transparent bg-inActive',
 										{
 											'bg-primary': i < currentSession
-										}
+										},
+										isSmallIndicator ? 'w-3 h-3' : 'w-5 h-5'
 									)}
 								></View>
+
+								{i !== 0 && (
+									<View
+										className={cn(
+											'absolute -top-6',
+											isSmallIndicator ? '-left-4' : '-left-5'
+										)}
+									>
+										<AntDesign
+											name='rest'
+											size={isSmallIndicator ? 16 : 18}
+											color={i <= currentSession ? '#523FC0' : '#3c3c5d'}
+										/>
+									</View>
+								)}
+
 								{i !== sessionsCount - 1 && (
 									<View
-										className={cn('w-6 h-0.5 bg-inActive', {
-											'bg-primary': currentSession >= i + 1
-										})}
+										className={cn(
+											' h-0.5 bg-inActive',
+											{
+												'bg-primary': currentSession >= i + 1
+											},
+											isSmallIndicator ? 'w-4' : 'w-6'
+										)}
 									></View>
 								)}
 							</View>
@@ -99,7 +122,7 @@ const Timer: FC = () => {
 					})}
 				</View>
 
-				<PlayButton isPlaying={isPlaying} setIsPlaying={setIsPlaying} />
+				<Actions isPlaying={isPlaying} setIsPlaying={setIsPlaying} />
 			</View>
 		</View>
 	)
