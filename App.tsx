@@ -1,21 +1,26 @@
-import Navigation from '@/navigation/Navigation'
-import AuthProvider from '@/providers/AuthProvider'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { StatusBar } from 'expo-status-bar'
-import { Text, View } from 'react-native'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
+import { Provider } from 'react-redux'
+import { PersistGate } from 'redux-persist/integration/react'
+
+import { persistor, store } from '@/store/store'
+
+import Navigation from '@/navigation/Navigation'
+
+const queryClient = new QueryClient()
 
 export default function App() {
-	const queryClient = new QueryClient()
-
 	return (
 		<QueryClientProvider client={queryClient}>
-			<AuthProvider>
-				<SafeAreaProvider>
-					<Navigation />
-				</SafeAreaProvider>
-			</AuthProvider>
-      <StatusBar style='auto' />
+			<Provider store={store}>
+				<PersistGate persistor={persistor} loading={null}>
+					<SafeAreaProvider>
+						<Navigation />
+					</SafeAreaProvider>
+				</PersistGate>
+			</Provider>
+			<StatusBar style='auto' />
 		</QueryClientProvider>
 	)
 }
